@@ -5,6 +5,8 @@
 
 #### Workspace setup ####
 library(tidyverse)
+library(janitor)
+library(knitr)
 
 #### Clean data ####
 # Look at the distribution of these deaths, by year and cause.
