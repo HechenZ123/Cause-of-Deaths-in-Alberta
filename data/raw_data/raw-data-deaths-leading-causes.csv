@@ -1,5 +1,5 @@
-Leading Causes of Death,,,
-,"This report of Vital Statistics death data is a point-in-time snapshot of the total number of deaths attributed to the 30 most common causes of death in 2022 according to Statistics Canada as of September 18th, 2023. These totals and the ranking of the most common causes of death will change over time as investigations into deaths are concluded, final causes of death are determined, and Statistics Canada completes its coding of deaths based on information received by the province. Information in this report is not updated throughout the year.",,
+Leading Causes of Death,...2,...3,...4
+NA,"This report of Vital Statistics death data is a point-in-time snapshot of the total number of deaths attributed to the 30 most common causes of death in 2022 according to Statistics Canada as of September 18th, 2023. These totals and the ranking of the most common causes of death will change over time as investigations into deaths are concluded, final causes of death are determined, and Statistics Canada completes its coding of deaths based on information received by the province. Information in this report is not updated throughout the year.",NA,NA
 Calendar Year,Cause,Ranking,Total Deaths
 2001,All other forms of chronic ischemic heart disease,1,1888
 2001,Acute myocardial infarction,2,1330
@@ -456,7 +456,7 @@ Calendar Year,Cause,Ranking,Total Deaths
 2016,Organic dementia,1,1664
 2016,All other forms of chronic ischemic heart disease,2,1626
 2016,"Malignant neoplasms of trachea, bronchus and lung",3,1547
-2016, Acute myocardial infarction,4,1102
+2016,Acute myocardial infarction,4,1102
 2016,Other chronic obstructive pulmonary disease,5,1090
 2016,"Atherosclerotic cardiovascular disease, so described",6,885
 2016,Accidental poisoning by and exposure to drugs and other biological substances,7,664
@@ -633,7 +633,7 @@ Calendar Year,Cause,Ranking,Total Deaths
 2021,Non-Hodgkin's lymphoma,28,243
 2021,"Intentional self-harm (suicide) by hanging, strangulation and suffocation",29,242
 2021,All other and unspecified accidents and their sequelae,30,239
-,"This report of Vital Statistics death data is a point-in-time snapshot of the total number of deaths attributed to the 30 most common causes of death in 2022 according to Statistics Canada as of September 18th, 2023. These totals and the ranking of the most common causes of death will change over time as investigations into deaths are concluded, final causes of death are determined, and Statistics Canada completes its coding of deaths based on information received by the province. Information in this report is not updated throughout the year.",,
+NA,"This report of Vital Statistics death data is a point-in-time snapshot of the total number of deaths attributed to the 30 most common causes of death in 2022 according to Statistics Canada as of September 18th, 2023. These totals and the ranking of the most common causes of death will change over time as investigations into deaths are concluded, final causes of death are determined, and Statistics Canada completes its coding of deaths based on information received by the province. Information in this report is not updated throughout the year.",NA,NA
 2022,Organic dementia,1,2377
 2022,All other forms of chronic ischemic heart disease,2,2098
 2022,Other ill-defined and unknown causes of mortality,3,1714
