@@ -6,45 +6,50 @@ author:
   - Ziyi Liu
   - Hechen Zhang
 thanks: "Code and data are available at: https://github.com/HechenZ123/Cause-of-Deaths-in-Alberta.git"
-date: today
-date-format: long
-abstract: "First sentence. Second sentence. Third sentence. Fourth sentence."
+date: 'today'
+date-format: 'long'
+abstract: "When the continuity assumption of linear regression does not apply, we can work with counting data using Poisson regression, which deals with discontinuous results but still incorporates predictor variables into the model in a linear manner. We demonstrate the validity of negative binomial regression through an extensive analysis of mortality in Alberta, Canada, where the data is too scattered for the classical method (Poisson regression). Based on our findings, negative binomial regression improves our ability to predict outcomes by fitting the data more precisely, especially in cases where the variance is substantially higher than the mean. This study highlights how important it is to use the right statistical models to get more accurate findings, which will ultimately enhance our understanding of patterns and trends in many academic fields."
 format: pdf
 toc: true
-number-sections: true
+editor: visual
+render:
+  latex_engine: xelatex
 bibliography: references.bib
 ---
+\newpage
 
-```{r}
-#| include: false
-#| warning: false
-#| message: false
+# 1.0 Introduction
+
+The mortality rate, often referred to as the death rate, represents an approximation of the fraction of a population that dies within a given time frame [@porta2014dictionary]. Mortality rates can serve as a crucial indicator of a population’s health status, and it also reveals the impact of diseases and other health-related issues over a period of time. This paper explores the leading causes of death in Alberta for crafting effective public health strategies and policies and understanding the most significant health threats affecting a population for researchers[@datasetCOD]. By identifying the main causes of mortality, health authorities can prioritise research funding towards diseases and conditions that have the highest impact on community health and lifespan [@vargas2019assessment]. 
+
+As discussed in the data section, we used data from Service Alberta [@datasetCOD] on the leading causes of deaths, in which the five most significant causes in 2022 were analysed. These five causes are Organic dementia, Other causes not clearly defined, COVID-19, and Cancers of the trachea, bronchus, and lungs. It was noted that, among the examples mentioned, the negative binomial regression is more accurate compared to the Poisson model, while Poisson regression is prone to errors.
+
+## 1.1 Importing Important Packages.
+In this analysis, we employ a range of R [@citeR] packages tailored for data cleaning, transformation, analysis, and reporting. `Tidyverse` by @tidyverse is used for data wrangling, `janitor` package by @janitor is used for data cleaning operations, and `knitr` by @knitr for data presentation in data tables.The following code section aims at importing the important packages that are essential for examining the missing values in the data set.We run the model in R @citeR using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`. For comprehensive mixed effects model analysis, we leverage the `broom.mixed` package [@broommixed], which extends the `broom` package functionalities to mixed models, facilitating the extraction, tidying, and representation of model outputs. Furthermore, the `modelsummary` package [@modelsummary] provides tools for creating customizable summary tables of model results, enhancing the interpretability and dissemination of statistical findings. By calculating the LOO-CV scores for different models with `loo` [@loo], we could compare them based on their out-of-sample predictive accuracy. Lower values of LOOIC indicate better model performance. The following code sections aim to import these crucial packages, essential for conducting a thorough analysis and addressing the research questions at hand, while ensuring data integrity and transparent reporting of results. 
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Set up libraries
 library(broom.mixed)
 library(tidyverse)
 library(janitor)
 library(knitr)
 library(modelsummary)
 library(rstanarm)
+library(loo)
 ```
 
+## 1.2. Data Overview.
 
+Our data is of leading causes of death (@fig-dataset-overview), from @datasetCOD.
 
-# Introduction
-
-You can and should cross-reference sections and sub-sections. We use @citeR and @rohan.
-
-The remainder of this paper is structured as follows. @sec-data....
-
-
-
-# Data {#sec-data}
-
-Some of our data is of penguins (@fig-bills), from @palmerpenguins.
+Examining the top ten causes in 2021 reveals several notable findings (@fig-dataset-overview). For example, ...
 
 ```{r}
-#| label: fig-bills
-#| fig-cap: Bills of penguins
+#| label: fig-dataset-overview
+#| fig-cap: Top-teight causes of death in Alberta in 2022
 #| echo: false
+#| warning: false
 alberta_cod <- read_csv(here::here("data/analysis_data/analysis_data.csv"))
 alberta_cod |>
   filter(
@@ -58,8 +63,16 @@ alberta_cod |>
     digits = 0, booktabs = TRUE, linesep = ""
   )
 ```
+
+# 2.0 Data {#sec-data}
+
+For simplicity we restrict ourselves to the five most common causes of death in 2022 of those that have been present every year.
 ```{r}
-# Look up the five most common causes of death in 2022 of those that have been present every year.
+#| label: fig-top-five
+#| fig-cap: Top Five Leading causes of death in 2022
+#| echo: false
+#| warning: false
+# Look up the five most common causes of death in 2022
 alberta_cod_top_five <-
   alberta_cod |>
   filter(
@@ -72,14 +85,12 @@ head(alberta_cod_top_five)
 alberta_cod <-
   alberta_cod |>
   filter(cause %in% alberta_cod_top_five)
-head(alberta_cod)
 ```
 
-And also planes (@fig-planes). (You can change the height and width, but don't worry about doing that until you have finished every other aspect of the paper - Quarto will try to make it look nice and the defaults usually work well once you have enough text.)
 
 ```{r}
 #| label: fig-planes
-#| fig-cap: Relationship between wing length and width
+#| fig-cap:  Annual number of deaths for the top-five causes in 2022, since 2001, for Alberta, Canada
 #| echo: false
 #| warning: false
 #| message: false
@@ -93,15 +104,23 @@ alberta_cod |>
   theme(legend.position = "none")
 ```
 
+```{r}
+#| label: fig-summary_table
+#| echo: false
+#| fig-cap:   Summary statistics of the number of yearly deaths, by cause, in Alberta, Canada
+#| warning: false
+#| message: false
+summary(alberta_cod$total_deaths)
+```
 
 
-# Model
+# 3.0 Model
 
 The goal of our modelling strategy is twofold. Firstly,...
 
 Here we briefly describe the Bayesian analysis model used to investigate... Background details and diagnostics are included in [Appendix -@sec-model-details].
 
-## Model set-up
+## 3.1 Model set-up
 
 Define $y_i$ as the number of seconds that the plane remained aloft. Then $\beta_i$ is the wing width and $\gamma_i$ is the wing length, both measured in millimeters.  
 
@@ -119,8 +138,8 @@ We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use
 ```{r}
 #| echo: false
 #| eval: true
+#| label: tbl-models
 #| warning: false
-#| message: false
 
 cause_of_death_alberta_poisson <-
   readRDS(file = here::here("models/cause_of_death_alberta_poisson.rds"))
@@ -144,25 +163,13 @@ Our results are summarized in @tbl-modelresults.
 #| echo: false
 #| eval: true
 #| label: tbl-modelresults
-#| tbl-cap: "Explanatory models of flight time based on wing width and wing length"
+#| tbl-cap: "Modeling the most prevalent cause of deaths in Alberta, 2001-2022"
 #| warning: false
-coef_short_names <- 
-  c("causeOrganic dementia"
-    = "causeOrganic dementia",
-    "causeOther ill-defined and unkno..."
-    = "causeOther ill-defined...",
-    "causeCOVID-19, virus identified"
-    = "causeCOVID-19",
-    "causeMalignant neoplasms of trac..."
-    = "causeMalignant neoplasms of trac..."
-    )
-
 modelsummary(
   list(
     "Poisson" = cause_of_death_alberta_poisson,
     "Negative binomial" = cause_of_death_alberta_neg_binomial
-  ),
-  coef_map = coef_short_names
+  )
 )
 
 ```
@@ -170,9 +177,10 @@ modelsummary(
 
 # Discussion
 
-## First discussion point {#sec-first-point}
+## Addressing Public Health Challenges in Alberta: Strategies for Health Policy and Social Regulation
 
-If my paper were 10 pages, then should be be at least 2.5 pages. The discussion is a chance to show off what you know and what you learnt from all this. 
+Based on the top five causes of death in Alberta, it is imperative that we consider initiatives to improve health policy and social regulation to address health challenges, prioritizing public health issues. Looking at the data, given the significant impact of Covid-19 on mortality rates, it is crucial to continue efforts to implement public health interventions. This includes increasing mass vaccination activities, continuing to promote mask-wearing and social distancing measures, and enhancing testing and contact tracing capabilities. Furthermore, it is essential to ensure that the healthcare system has sufficient capacity to handle an increase in cases. It is worth noting that in the coming years, due to the passage of several years since the virus initially emerged, Covid-19 may not continue to be such a significant cause of death, as the virus gradually becomes less virulent or severe [@talic2021effectiveness].
+Implementing policies for cancer prevention and control can help reduce mortality from malignant neoplasms of the trachea, bronchus, and lung. This may include implementing tobacco control measures, such as increasing tobacco product taxes, comprehensive smoking cessation programs, and restricting tobacco advertising and promotion. Additionally, promoting healthy lifestyles, early cancer screening programs, and providing high-quality cancer treatment services are also crucial [@eastman2023nci].
 
 ## Second discussion point
 
@@ -206,8 +214,8 @@ In @fig-ppcheckandposteriorvsprior-2 we compare the posterior with the prior. Th
 #| warning: false
 #| label: fig-ppcheckandposteriorvsprior
 #| layout-ncol: 2
-#| fig-cap: "Examining how the model fits, and is affected by, the data"
-#| fig-subcap: ["Posterior prediction check", "Comparing the posterior with the prior"]
+#| fig-cap: "Comparing posterior prediction checks for Poisson and negative binomial models"
+#| fig-subcap: ["Poisson model", "Negative binomial model"]
 
 pp_check(cause_of_death_alberta_poisson) +
   theme(legend.position = "bottom")
@@ -216,21 +224,17 @@ pp_check(cause_of_death_alberta_neg_binomial) +
   theme(legend.position = "bottom")
 ```
 
-## Diagnostics
 
-@fig-stanareyouokay-1 is a trace plot. It shows... This suggests...
 
-@fig-stanareyouokay-2 is a Rhat plot. It shows... This suggests...
 
 ```{r}
 #| echo: false
 #| eval: true
-#| message: false
-#| warning: false
-#| label: fig-stanareyouokay
-#| fig-cap: "Checking the convergence of the MCMC algorithm"
-#| fig-subcap: ["Trace plot", "Rhat plot"]
-#| layout-ncol: 2
+#| message: true
+#| warning: true
+#| label: fig-LOOIC
+#| fig-cap: "Comparing the LOO-CV scores"
+
 
 poisson <- loo(cause_of_death_alberta_poisson, cores = 2)
 neg_binomial <- loo(cause_of_death_alberta_neg_binomial, cores = 2)
