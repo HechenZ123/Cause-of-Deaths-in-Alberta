@@ -39,11 +39,11 @@ library(rstanarm)
 library(loo)
 ```
 
-## 1.2. Data Overview.
+# 2.0 Data {#sec-data}
 
 Our data is of leading causes of death (@fig-dataset-overview), from @datasetCOD.
 
-Examining the top ten causes in 2021 reveals several notable findings (@fig-dataset-overview). For example, ...
+Examining the top ten causes in 2022 reveals several notable findings (@fig-dataset-overview). For example, ...
 
 ```{r}
 #| label: fig-dataset-overview
@@ -64,7 +64,7 @@ alberta_cod |>
   )
 ```
 
-# 2.0 Data {#sec-data}
+
 
 For simplicity we restrict ourselves to the five most common causes of death in 2022 of those that have been present every year.
 ```{r}
@@ -110,7 +110,19 @@ alberta_cod |>
 #| fig-cap:   Summary statistics of the number of yearly deaths, by cause, in Alberta, Canada
 #| warning: false
 #| message: false
-summary(alberta_cod$total_deaths)
+# Calculate summary statistics for total_deaths
+summary_stats <- data.frame(
+  Min = min(alberta_cod$total_deaths, na.rm = TRUE),
+  Mean = mean(alberta_cod$total_deaths, na.rm = TRUE),
+  Max = max(alberta_cod$total_deaths, na.rm = TRUE),
+  SD = sd(alberta_cod$total_deaths, na.rm = TRUE),
+  Var = var(alberta_cod$total_deaths, na.rm = TRUE),
+  N = sum(!is.na(alberta_cod$total_deaths))
+)
+
+# Print the summary statistics
+print(summary_stats)
+
 ```
 
 
@@ -236,8 +248,8 @@ pp_check(cause_of_death_alberta_neg_binomial) +
 #| fig-cap: "Comparing the LOO-CV scores"
 
 
-poisson <- loo(cause_of_death_alberta_poisson, cores = 2)
-neg_binomial <- loo(cause_of_death_alberta_neg_binomial, cores = 2)
+poisson <- loo(cause_of_death_alberta_poisson, cores = 1)
+neg_binomial <- loo(cause_of_death_alberta_neg_binomial, cores = 1)
 
 loo_compare(poisson, neg_binomial)
 ```
@@ -248,5 +260,3 @@ loo_compare(poisson, neg_binomial)
 
 
 # References
-
-
