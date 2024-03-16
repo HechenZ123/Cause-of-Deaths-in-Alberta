@@ -8,7 +8,7 @@ author:
 thanks: "Code and data are available at: https://github.com/HechenZ123/Cause-of-Deaths-in-Alberta.git"
 date: 'today'
 date-format: 'long'
-abstract: "When the continuity assumption of linear regression does not apply, we can work with counting data using Poisson regression, which deals with discontinuous results but still incorporates predictor variables into the model in a linear manner. We demonstrate the validity of negative binomial regression through an extensive analysis of mortality in Alberta, Canada, where the data is too scattered for the classical method (Poisson regression). Based on our findings, negative binomial regression improves our ability to predict outcomes by fitting the data more precisely, especially in cases where the variance is substantially higher than the mean. This study highlights how important it is to use the right statistical models to get more accurate findings, which will ultimately enhance our understanding of patterns and trends in many academic fields."
+abstract: "We examined the distribution of the top 30 causes of death for each year between 2001 and 2022 in Alberta, Canada. The conifer model and negative binomial regression were used to analyse the long-term leading causes of death and the sudden emergence of specific causes of death. According to our findings, negative binomial regression improves our ability to predict outcomes when the data is too spread out by fitting the data more accurately. The results could not only help policymakers design more effective preventive measures to reduce mortality from these conditions, but also help researchers and policymakers make more precise decisions."
 format: pdf
 toc: true
 editor: visual
@@ -43,7 +43,24 @@ library(loo)
 
 Our data is of leading causes of death (@fig-dataset-overview), from @datasetCOD.
 
-Examining the top ten causes in 2022 reveals several notable findings (@fig-dataset-overview). For example, ...
+## 2.1 Data Sources
+The Alberta Government created the dataset.The official website of the Government of Alberta provides a single platform for services and information pertaining to Alberta, Canada. It provides information on government news, jobs, social services, health, and education, making it an essential tool for both locals and tourists to be updated about provincial issues.
+
+## 2.2 Variables
+Order by total number of deaths and a ranking of the top 30 causes of death in Alberta each year.Our table lists the top eight causes of death in Alberta in 2022. Examine each variable in detail:
+*Year*: This denotes the data gathering year, which for all entries is 2022.
+*Cause*: This represents the medical condition or event that led to death. The causes listed are shown in @fig-dataset-overview:
+`Organic dementia`
+`All other forms of chronic...`, 
+`Other ill-defined and unknown...`, 
+`COVID-19, virus identified`, 
+`Malignant neoplasms of the trachea, bronchus, and lung`, 
+`Acute myocardial infarction`, 
+`Accidental poisoning by and...`, 
+`Other chronic obstructive pulmonary diseases`, 
+*Ranking*: This is a ranking by the number of deaths caused by each disease, with 1 being the highest.
+*Deaths*: The number of deaths attributed to each cause.
+*Year*: Indicates the number of years in which data was collected for that reason.
 
 ```{r}
 #| label: fig-dataset-overview
@@ -65,11 +82,19 @@ alberta_cod |>
 ```
 
 
+## 2.3 Data Description
+It accurately reflects health issues specific to the region, but this information is somewhat limited by location. Health policies vary from country to country, and in some regions and countries, health coverage may be less developed than in others, and low-income groups may not be able to afford basic medical care, which increases their risk of chronic diseases and other health problems. The main types of employment in a city also have an impact on health; In an industrial city, some jobs may require exposure to hazardous substances or strenuous physical labor, which increases the likelihood of developing occupational diseases. Risks associated with the workplace may lead to an increase in diseases such as cardiovascular and respiratory diseases. In addition, communities with higher levels of education and economic prosperity generally have stronger social support systems, which are critical for disease prevention.
+
+The demographics of a society also have a significant impact on cause-of-death data. Age distribution is important because certain age groups are more susceptible to certain diseases. For example, young children may be more susceptible to infectious diseases, while older people may be more susceptible to degenerative and chronic diseases. Given that certain medical conditions are more common in one sex than the other - men may have higher rates of heart disease, while women may have higher rates of certain cancers - the sex ratio may also have an impact on causes of death. In addition, differences in the ethnic makeup of the population may be related to lifestyle choices, genetic makeup, and disease risk. For example, genetic factors may contribute to the higher incidence of certain chronic diseases in particular ethnic groups. Elucidating how resources are allocated to public health problems therefore requires a thorough understanding and study of population characteristics.
+
+We can also see that in the data table @fig-dataset-overview for 2022, COVID-19 ranks fourth, with 1,547 deaths. Alberta's cause-of-death data proves that the coronavirus pandemic is one of the most serious public health crises of the early 21st century, with global implications. This figure not only speaks to the outbreak's death rate, but also suggests that the region's health care system may be under strain. The COVID-19 pandemic has disrupted the distribution of deaths from previously common causes, which may include some chronic diseases that have long held the top spot, such as cancer and heart disease, even though it was not the leading cause of death in the years shown in the table.
+
+As large datasets are difficult to observe, this report will analyze only specific aspects. The original dataset contains eight different causes of death. Only the first five causes will be analyzed in this paper.
 
 For simplicity we restrict ourselves to the five most common causes of death in 2022 of those that have been present every year.
 ```{r}
-#| label: fig-top-five
-#| fig-cap: Top Five Leading causes of death in 2022
+#| label: tbl-top-five
+#| tbl-cap: Top Five Leading causes of death in 2022
 #| echo: false
 #| warning: false
 # Look up the five most common causes of death in 2022
@@ -80,49 +105,12 @@ alberta_cod_top_five <-
   ) |>
   slice_max(order_by = desc(ranking), n = 5) |>
   pull(cause)
-head(alberta_cod_top_five)
 
 alberta_cod <-
   alberta_cod |>
   filter(cause %in% alberta_cod_top_five)
-```
 
-
-```{r}
-#| label: fig-planes
-#| fig-cap:  Annual number of deaths for the top-five causes in 2022, since 2001, for Alberta, Canada
-#| echo: false
-#| warning: false
-#| message: false
-alberta_cod |>
-  ggplot(aes(x = calendar_year, y = total_deaths, color = cause)) +
-  geom_line() +
-  theme_minimal() +
-  scale_color_brewer(palette = "Set1") +
-  labs(x = "Year", y = "Annual number of deaths in Alberta") +
-  facet_wrap(vars(cause), dir = "v", ncol = 1) +
-  theme(legend.position = "none")
-```
-
-```{r}
-#| label: fig-summary_table
-#| echo: false
-#| fig-cap:   Summary statistics of the number of yearly deaths, by cause, in Alberta, Canada
-#| warning: false
-#| message: false
-# Calculate summary statistics for total_deaths
-summary_stats <- data.frame(
-  Min = min(alberta_cod$total_deaths, na.rm = TRUE),
-  Mean = mean(alberta_cod$total_deaths, na.rm = TRUE),
-  Max = max(alberta_cod$total_deaths, na.rm = TRUE),
-  SD = sd(alberta_cod$total_deaths, na.rm = TRUE),
-  Var = var(alberta_cod$total_deaths, na.rm = TRUE),
-  N = sum(!is.na(alberta_cod$total_deaths))
-)
-
-# Print the summary statistics
-print(summary_stats)
-
+head(alberta_cod_top_five)
 ```
 
 
@@ -130,19 +118,26 @@ print(summary_stats)
 
 The goal of our modelling strategy is twofold. Firstly,...
 
-Here we briefly describe the Bayesian analysis model used to investigate... Background details and diagnostics are included in [Appendix -@sec-model-details].
+Here we briefly describe the Bayesian analysis model used to investigate... Background details and diagnostics are included in Appendix
 
 ## 3.1 Model set-up
 
-Define $y_i$ as the number of seconds that the plane remained aloft. Then $\beta_i$ is the wing width and $\gamma_i$ is the wing length, both measured in millimeters.  
+Define $y_i$ as the number of deaths recorded in Alberta. Then $\beta_i$ is ... and $\gamma_i$ is .. $x_i$ is the causes of death. 
 
+Poisson model:
 \begin{align} 
-y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\
-\mu_i &= \alpha + \beta_i + \gamma_i\\
-\alpha &\sim \mbox{Normal}(0, 2.5) \\
-\beta &\sim \mbox{Normal}(0, 2.5) \\
-\gamma &\sim \mbox{Normal}(0, 2.5) \\
-\sigma &\sim \mbox{Exponential}(1)
+y_i|\lambda_i &\sim \mbox{Poisson}(\lambda_i) \\
+log(\lambda_i) & = \beta_0 + \beta_1 \cdot x_i\\
+\beta_0 &\sim \mbox{Normal}(0, 2.5) \\
+\beta_1 &\sim \mbox{Normal}(0, 2.5) \\
+\end{align}
+
+Negative binomial model:
+\begin{align} 
+y_i|\lambda_i, \theta &\sim \mbox{NegativeBinomial}(\mu_i, \theta) \\
+log(\mu_i) & = \beta_0 + \beta_1 \cdot x_i\\
+\beta_0 &\sim \mbox{Normal}(0, 2.5) \\
+\beta_1 &\sim \mbox{Normal}(0, 2.5) \\
 \end{align}
 
 We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`.
@@ -168,6 +163,41 @@ We can use maths by including latex between dollar signs, for instance $\theta$.
 
 
 # Results
+```{r}
+#| label: fig-planes
+#| fig-cap:  Annual number of deaths for the top-five causes in 2022, since 2001, for Alberta, Canada
+#| echo: false
+#| warning: false
+#| message: false
+alberta_cod |>
+  ggplot(aes(x = calendar_year, y = total_deaths, color = cause)) +
+  geom_line() +
+  theme_minimal() +
+  scale_color_brewer(palette = "Set1") +
+  labs(x = "Year", y = "Annual number of deaths in Alberta") +
+  facet_wrap(vars(cause), dir = "v", ncol = 1) +
+  theme(legend.position = "none")
+```
+
+```{r}
+#| label: fig-summary_table
+#| echo: false
+#| tbl-cap: Summary by cause of the number of yearly deaths in Alberta, Canada
+#| warning: false
+#| message: false
+# Calculate summary statistics for total_deaths
+summary_stats <- data.frame(
+  Min = min(alberta_cod$total_deaths, na.rm = TRUE),
+  Mean = mean(alberta_cod$total_deaths, na.rm = TRUE),
+  Max = max(alberta_cod$total_deaths, na.rm = TRUE),
+  SD = sd(alberta_cod$total_deaths, na.rm = TRUE),
+  Var = var(alberta_cod$total_deaths, na.rm = TRUE),
+  N = sum(!is.na(alberta_cod$total_deaths))
+)
+
+# Use kable from knitr to create a table
+kable(summary_stats)
+```
 
 Our results are summarized in @tbl-modelresults.
 
