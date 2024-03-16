@@ -19,13 +19,13 @@ bibliography: references.bib
 ---
 \newpage
 
-# 1.0 Introduction
+# Introduction
 
 The mortality rate, often referred to as the death rate, represents an approximation of the fraction of a population that dies within a given time frame [@porta2014dictionary]. Mortality rates can serve as a crucial indicator of a population’s health status, and it also reveals the impact of diseases and other health-related issues over a period of time. This paper explores the leading causes of death in Alberta for crafting effective public health strategies and policies and understanding the most significant health threats affecting a population for researchers[@datasetCOD]. By identifying the main causes of mortality, health authorities can prioritise research funding towards diseases and conditions that have the highest impact on community health and lifespan [@vargas2019assessment]. 
 
 As discussed in the data section, we used data from Service Alberta [@datasetCOD] on the leading causes of deaths, in which the five most significant causes in 2022 were analysed. These five causes are Organic dementia, Other causes not clearly defined, COVID-19, and Cancers of the trachea, bronchus, and lungs. It was noted that, among the examples mentioned, the negative binomial regression is more accurate compared to the Poisson model, while Poisson regression is prone to errors.
 
-## 1.1 Importing Important Packages.
+## Importing Important Packages.
 In this analysis, we employ a range of R [@citeR] packages tailored for data cleaning, transformation, analysis, and reporting. `Tidyverse` by @tidyverse is used for data wrangling, `janitor` package by @janitor is used for data cleaning operations, and `knitr` by @knitr for data presentation in data tables.The following code section aims at importing the important packages that are essential for examining the missing values in the data set.We run the model in R @citeR using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`. For comprehensive mixed effects model analysis, we leverage the `broom.mixed` package [@broommixed], which extends the `broom` package functionalities to mixed models, facilitating the extraction, tidying, and representation of model outputs. Furthermore, the `modelsummary` package [@modelsummary] provides tools for creating customizable summary tables of model results, enhancing the interpretability and dissemination of statistical findings. By calculating the LOO-CV scores for different models with `loo` [@loo], we could compare them based on their out-of-sample predictive accuracy. Lower values of LOOIC indicate better model performance. The following code sections aim to import these crucial packages, essential for conducting a thorough analysis and addressing the research questions at hand, while ensuring data integrity and transparent reporting of results. 
 
 ```{r setup, include=FALSE}
@@ -40,14 +40,14 @@ library(rstanarm)
 library(loo)
 ```
 
-# 2.0 Data {#sec-data}
+# Data {#sec-data}
 
 Our data is of leading causes of death (@fig-dataset-overview), from @datasetCOD.
 
-## 2.1 Data Sources
+## Data Sources
 The Alberta Government created the dataset.The official website of the Government of Alberta provides a single platform for services and information pertaining to Alberta, Canada. It provides information on government news, jobs, social services, health, and education, making it an essential tool for both locals and tourists to be updated about provincial issues.
 
-## 2.2 Variables
+## Variables
 Order by total number of deaths and a ranking of the top 30 causes of death in Alberta each year.Our table lists the top eight causes of death in Alberta in 2022. Examine each variable in detail:
 *Year*: This denotes the data gathering year, which for all entries is 2022.
 *Cause*: This represents the medical condition or event that led to death. The causes listed are shown in @fig-dataset-overview:
@@ -83,7 +83,7 @@ alberta_cod |>
 ```
 
 
-## 2.3 Data Description
+## Data Description
 It accurately reflects health issues specific to the region, but this information is somewhat limited by location. Health policies vary from country to country, and in some regions and countries, health coverage may be less developed than in others, and low-income groups may not be able to afford basic medical care, which increases their risk of chronic diseases and other health problems. The main types of employment in a city also have an impact on health; In an industrial city, some jobs may require exposure to hazardous substances or strenuous physical labor, which increases the likelihood of developing occupational diseases. Risks associated with the workplace may lead to an increase in diseases such as cardiovascular and respiratory diseases. In addition, communities with higher levels of education and economic prosperity generally have stronger social support systems, which are critical for disease prevention.
 
 The demographics of a society also have a significant impact on cause-of-death data. Age distribution is important because certain age groups are more susceptible to certain diseases. For example, young children may be more susceptible to infectious diseases, while older people may be more susceptible to degenerative and chronic diseases. Given that certain medical conditions are more common in one sex than the other - men may have higher rates of heart disease, while women may have higher rates of certain cancers - the sex ratio may also have an impact on causes of death. In addition, differences in the ethnic makeup of the population may be related to lifestyle choices, genetic makeup, and disease risk. For example, genetic factors may contribute to the higher incidence of certain chronic diseases in particular ethnic groups. Elucidating how resources are allocated to public health problems therefore requires a thorough understanding and study of population characteristics.
@@ -115,9 +115,9 @@ head(alberta_cod_top_five)
 ```
 
 
-# 3.0 Model
+# Model
 
-## 3.1 Model setup:
+## Model setup:
 
 In analyzing the association between the total number of deaths and significant causes of death, we used two different regression models to predict, namely the Poisson distribution and the binomial distribution. Both the Poisson and binomial distribution models are regression models used to analyze count data, primarily for finding the relationship between independent variables (predictors) and dependent variables (count outcomes). In regression models, the independent variables are independent, while the dependent variables depend on the independent variables. In our model, the independent variables are the different causes of death mentioned in the table, such as COVID-19, malignant neoplasms, organic dementia, etc. These variables are used to predict or explain the number of deaths. The dependent variable is the number of deaths in Alberta from 2001 to 2022. This variable is the response variable in the model, and its count is the result to be predicted or explained.
 
@@ -159,12 +159,28 @@ cause_of_death_alberta_neg_binomial <-
   readRDS(file = here::here("models/cause_of_death_alberta_neg_binomial.rds"))
 ```
 
-## 3.2 Model justification
+## Model justification
 
-Based on the models discussed above, it is challenging to determine whether each cause of death has a positive or negative correlation with the total number of deaths, as the leading cause of death changes each year. The specific impact of these changes must be determined by the coefficient of each leading cause of death to decide whether the correlation is positive or negative. According to Table 1, from 2001 to 2022, organic dementia shows an upward trend, indicating that organic dementia is positively correlated with the total number of deaths. In the upcoming model results section, we will elaborate in detail on the association between each cause of death and the total number of deaths.
+Based on the models discussed above, it is challenging to determine whether each cause of death has a positive or negative correlation with the total number of deaths, as the leading cause of death changes each year. The specific impact of these changes must be determined by the coefficient of each leading cause of death to decide whether the correlation is positive or negative. According to @fig-planes, from 2001 to 2022, organic dementia shows an upward trend, indicating that organic dementia is positively correlated with the total number of deaths. In the upcoming model results section, we will elaborate in detail on the association between each cause of death and the total number of deaths.
 
 Based on our discussion in the model set-up section, the negative binomial distribution seems more suitable for our research objectives than the Poisson distribution. The Poisson model assumes that the mean and variance are equal, but in the real world, they are rarely equal. The negative binomial distribution incorporates a dispersion parameter, making the predictions more accurate.
 
+```{r}
+#| label: tbl-mean-var
+#| tbl-cap: Comparison of Mean and Variance of Total Death in from 2001 to 2022
+#| echo: false
+#| warning: false
+# Calculate the mean and variance
+summary_stats <- alberta_cod %>%
+  summarise(
+    Mean = mean(total_deaths, na.rm = TRUE),  # Calculate mean, remove NA values if any
+    Variance = var(total_deaths, na.rm = TRUE) # Calculate variance, remove NA values if any
+  )
+
+# Create a table
+kable(summary_stats, caption = "Comparison of Mean and Variance of Total Deaths")
+
+```
 
 # Results
 ```{r}
