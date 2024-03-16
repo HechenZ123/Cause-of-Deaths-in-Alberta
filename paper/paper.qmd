@@ -14,6 +14,7 @@ toc: true
 editor: visual
 render:
   latex_engine: xelatex
+number-sections: true
 bibliography: references.bib
 ---
 \newpage
@@ -116,13 +117,16 @@ head(alberta_cod_top_five)
 
 # 3.0 Model
 
-The goal of our modelling strategy is twofold. Firstly,...
+## 3.1 Model setup:
 
-Here we briefly describe the Bayesian analysis model used to investigate... Background details and diagnostics are included in Appendix
+In analyzing the association between the total number of deaths and significant causes of death, we used two different regression models to predict, namely the Poisson distribution and the binomial distribution. Both the Poisson and binomial distribution models are regression models used to analyze count data, primarily for finding the relationship between independent variables (predictors) and dependent variables (count outcomes). In regression models, the independent variables are independent, while the dependent variables depend on the independent variables. In our model, the independent variables are the different causes of death mentioned in the table, such as COVID-19, malignant neoplasms, organic dementia, etc. These variables are used to predict or explain the number of deaths. The dependent variable is the number of deaths in Alberta from 2001 to 2022. This variable is the response variable in the model, and its count is the result to be predicted or explained.
 
-## 3.1 Model set-up
+Using the Poisson distribution has different advantages and disadvantages in this study. The Poisson model is simple in form, with fewer parameters, making it easy to understand and explain, and because of its simplicity, this model has a faster computation speed and is easy to implement. The Poisson distribution has a solid theoretical foundation for modeling the number of times an event occurs. It assumes that the average frequency of events occurring over a certain time or space is constant, and the occurrence of individual events is independent. At the same time, the Poisson distribution is a regression model specifically used for analyzing count data (where the response variable is non-negative). In our study, our response variable is the number of deaths, which is definitely a positive number, making the Poisson distribution suitable for our research. However, it also has some shortcomings, such as the problem of overdispersion; if the actual data show that the variance is greater than the mean, the Poisson model may not be applicable, and the model's predictive effect will worsen.
 
-Define $y_i$ as the number of deaths recorded in Alberta. Then $\beta_i$ is ... and $\gamma_i$ is .. $x_i$ is the causes of death. 
+Regarding the negative binomial distribution, its advantage is that it includes an additional parameter to model overdispersion, making it more suitable for data where the variance is greater than the mean. Compared to the Poisson model, the negative binomial model offers more flexibility to fit various data, especially those that exhibit significant overdispersion or clustering. The negative binomial model includes an extra parameter to account for overdispersion, allowing the variance to exceed the mean. In our study, this model also attempts to link death counts with various causes but is more flexible in handling data variability. However, compared to the Poisson distribution, the negative binomial model is more complex, involving more parameters, which may lead to difficulties in model explanation and communication. The negative binomial model typically requires more computational resources, so it may not be as efficient as the Poisson model on large datasets.
+
+In our data situation, the negative binomial model seems more appropriate than the Poisson model, possibly due to overdispersion in the data. Therefore, in analyzing causes of death (such as COVID-19, malignant neoplasms, organic dementia, etc.), choosing the negative binomial model may provide more accurate estimates.
+ 
 
 Poisson model:
 \begin{align} 
@@ -140,12 +144,12 @@ log(\mu_i) & = \beta_0 + \beta_1 \cdot x_i\\
 \beta_1 &\sim \mbox{Normal}(0, 2.5) \\
 \end{align}
 
-We run the model in R [@citeR] using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`.
+From this formula, we can consider $y_i$ to be the total number of deaths, with the i-th observation representing the cause of death. $\beta_0$ represents the intercept, which is the expected log count of the response variable when all predictor variables are held at zero. The intercepts of the two models are similar. Each cause of death has a corresponding coefficient $\beta_i$, indicating the change in the expected log count of deaths for each unit increase in the predictor variable (i.e., the presence of the cause of death). A negative coefficient suggests that the presence of that cause is associated with a decrease in the death count relative to the baseline level. The intercept $\beta_0$ and the slope $\beta_i$ both follow a prior distribution that is normally distributed with a mean of 0 and a standard deviation of 2.5.
+
 
 ```{r}
 #| echo: false
 #| eval: true
-#| label: tbl-models
 #| warning: false
 
 cause_of_death_alberta_poisson <-
@@ -155,11 +159,11 @@ cause_of_death_alberta_neg_binomial <-
   readRDS(file = here::here("models/cause_of_death_alberta_neg_binomial.rds"))
 ```
 
-### Model justification
+## 3.2 Model justification
 
-We expect a positive relationship between the size of the wings and time spent aloft. In particular...
+Based on the models discussed above, it is challenging to determine whether each cause of death has a positive or negative correlation with the total number of deaths, as the leading cause of death changes each year. The specific impact of these changes must be determined by the coefficient of each leading cause of death to decide whether the correlation is positive or negative. According to Table 1, from 2001 to 2022, organic dementia shows an upward trend, indicating that organic dementia is positively correlated with the total number of deaths. In the upcoming model results section, we will elaborate in detail on the association between each cause of death and the total number of deaths.
 
-We can use maths by including latex between dollar signs, for instance $\theta$.
+Based on our discussion in the model set-up section, the negative binomial distribution seems more suitable for our research objectives than the Poisson distribution. The Poisson model assumes that the mean and variance are equal, but in the real world, they are rarely equal. The negative binomial distribution incorporates a dispersion parameter, making the predictions more accurate.
 
 
 # Results
