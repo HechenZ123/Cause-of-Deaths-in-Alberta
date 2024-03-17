@@ -1,6 +1,6 @@
 ---
-title: "Analyzi"
-subtitle: "My subtitle if needed"
+title: "Deciphering Mortality Patterns: A Comprehensive Study of Causes of Death in Alberta (2001-2022)"
+subtitle: "Evaluating Predictive Models and Public Health Implications"
 author: 
   - Yanyu Wu
   - Ziyi Liu
@@ -21,9 +21,16 @@ bibliography: references.bib
 
 # Introduction
 
-The mortality rate, often referred to as the death rate, represents an approximation of the fraction of a population that dies within a given time frame [@porta2014dictionary]. Mortality rates can serve as a crucial indicator of a population’s health status, and it also reveals the impact of diseases and other health-related issues over a period of time. This paper explores the leading causes of death in Alberta for crafting effective public health strategies and policies and understanding the most significant health threats affecting a population for researchers[@datasetCOD]. By identifying the main causes of mortality, health authorities can prioritise research funding towards diseases and conditions that have the highest impact on community health and lifespan [@vargas2019assessment]. 
+One of the most populated provinces in Canada, Alberta is distinguished for its diverse population and rapid population increase. Since population growth has been a major factor in Alberta's economic growth, it is imperative. Therefore, for population expansion, it is essential to comprehend the causes of death in this province and to take appropriate action. The mortality rate, sometimes called the death rate, is an estimate of the percentage of a population that passes away in a specific amount of time [@porta2014dictionary]. Over time, mortality rates can provide important insights into the health state of a community by highlighting the effects of various diseases and health-related concerns. The government may facilitate public health planning and policy making by identifying health priorities and determining how best to distribute resources through the investigation of death rates.
 
-As discussed in the data section, we used data from Service Alberta [@datasetCOD] on the leading causes of deaths, in which the five most significant causes in 2022 were analysed. These five causes are Organic dementia, Other causes not clearly defined, COVID-19, and Cancers of the trachea, bronchus, and lungs. It was noted that, among the examples mentioned, the negative binomial regression is more accurate compared to the Poisson model, while Poisson regression is prone to errors.
+In order to create efficient public health plans and policies and to comprehend the most important health hazards impacting a community for academics, this study examines the patterns of the five leading causes of death over a 20-year period. As mentioned in the data section, we first provide the eight top causes of death in Alberta in 2022, analyzing the five most important causes as estimands in 2022. We do this by using data on fatalities from Service Alberta [@datasetCOD]. These five reasons include COVID-19, malignant neoplasms of the trachea, bronchus, and lungs, organic dementia, and other causes not fully understood. Of them, malignant neoplasms of the trachea have the least effect on the number of fatalities, whereas organic dementia has the most.
+
+We used the Poisson model and the negative binomial model as our two statistical models in the model section. In order to provide accurate evaluations of mortality occurrences within a population, the Poisson and negative binomial models are utilized due to their usefulness in assessing count data and allowing overdispersion, respectively. We may infer the patterns of these five causes over the last 20 years by determining if the overall number of fatalities and the causes of death are positively or negatively connected. Because of the overdispersion in the data, it was shown that the negative binomial regression is more accurate than the Poisson model.
+
+In the result section, we go over the data and model findings. We discovered that, with the exception of "Other ill-defined and unknown causes," which shows no significant influence, a rise in the prevalence of each cause of death resulted in a decrease in the overall number of fatalities when compared to the baseline. In the discussion section, we address the effects of COVID-19 and environmental variables, as well as outline the study's possible shortcomings and suggest future directions for development.
+
+We hope that by examining the top five causes of death in our article, the public and the Alberta government will recognize the significance of public health and take steps to improve individual health and lower mortality rates.
+
 
 ## Importing Important Packages.
 In this analysis, we employ a range of R [@citeR] packages tailored for data cleaning, transformation, analysis, and reporting. `Tidyverse` by @tidyverse is used for data wrangling, `janitor` package by @janitor is used for data cleaning operations, and `knitr` by @knitr for data presentation in data tables.The following code section aims at importing the important packages that are essential for examining the missing values in the data set.We run the model in R @citeR using the `rstanarm` package of @rstanarm. We use the default priors from `rstanarm`. For comprehensive mixed effects model analysis, we leverage the `broom.mixed` package [@broommixed], which extends the `broom` package functionalities to mixed models, facilitating the extraction, tidying, and representation of model outputs. Furthermore, the `modelsummary` package [@modelsummary] provides tools for creating customizable summary tables of model results, enhancing the interpretability and dissemination of statistical findings. By calculating the LOO-CV scores for different models with `loo` [@loo], we could compare them based on their out-of-sample predictive accuracy. Lower values of LOOIC indicate better model performance. The following code sections aim to import these crucial packages, essential for conducting a thorough analysis and addressing the research questions at hand, while ensuring data integrity and transparent reporting of results. 
@@ -42,10 +49,8 @@ library(loo)
 
 # Data
 
-Our data is of leading causes of death (@fig-dataset-overview), from @datasetCOD.
-
 ## Data Sources
-Our research team conducted an in-depth analysis of mortality trends in Alberta, choosing a dataset published on the Alberta Open Government Portal as the basis for their study. This dataset was made available to the public beginning in 2015 and was last updated in 2023, and is designed to promote public engagement by providing transparent access to key health statistics.This dataset provides a comprehensive view of deaths across the province, covering the top 30 leading causes of death in each annual count. This dataset was chosen because it provides key statistics on the number of deaths and mortality rates. These statistics cover data from chronic diseases to unintended injuries and even public health emergencies, allowing us to accurately track trends in key causes of death. We chose to rely on this dataset primarily because it is sourced from the official government of Alberta, which provides an authoritative data base for our study. The endorsement of a government department ensures the accuracy of the data, which is a key prerequisite for conducting scientific research. In addition, the high degree of fit of the dataset with our research objectives was an important reason for its selection. Our study aimed to gain insight into the key factors that influence mortality in Alberta and to explore possible public health interventions. By analysing this data, we are able to identify priority areas for health interventions and provide a scientific basis for policy makers.
+Our research team conducted an in-depth analysis of mortality trends in Alberta, choosing a dataset published on the Alberta Open Government Portal as the basis for their study. This dataset was made available to the public beginning in 2015 and was last updated in 2023 from @datasetCOD, and is designed to promote public engagement by providing transparent access to key health statistics. This dataset provides a comprehensive view of deaths across the province, covering the top 30 leading causes of death in each annual count. This dataset was chosen because it provides key statistics on the number of deaths and mortality rates. These statistics cover data from chronic diseases to unintended injuries and even public health emergencies, allowing us to accurately track trends in key causes of death. We chose to rely on this dataset primarily because it is sourced from the official government of Alberta, which provides an authoritative data base for our study. The endorsement of a government department ensures the accuracy of the data, which is a key prerequisite for conducting scientific research. In addition, the high degree of fit of the dataset with our research objectives was an important reason for its selection. Our study aimed to gain insight into the key factors that influence mortality in Alberta and to explore possible public health interventions. By analysing this data, we are able to identify priority areas for health interventions and provide a scientific basis for policy makers.
 
 
 ## Features
@@ -59,7 +64,7 @@ Order by total number of deaths and a ranking of the top 30 causes of death in A
 `Malignant neoplasms of the trachea, bronchus, and lung`, 
 `Acute myocardial infarction`, 
 `Accidental poisoning by and...`, 
-`Other chronic obstructive pulmonary diseases`, 
+`Other chronic obstructive pulmonary diseases`. 
 *Ranking*: This is a ranking by the number of deaths caused by each disease, with 1 being the highest.
 *Deaths*: The number of deaths attributed to each cause.
 *Years*: Indicates the number of years in which data was collected for that reason.
@@ -317,8 +322,6 @@ Both models’ coefficients represent that as each of these causes of death beco
 
 
 # Discussion
-
-## Overview of the Finding 
 
 For the 2022 data, the process of utilizing different statistical models applied to the historical data to estimate model parameters is used to understand how each cause contributes to the total number of deaths. Using the estimated coefficients, the relationship between each cause of death and the total number of deaths can be extrapolated to predict future trends in causes of death.
 
