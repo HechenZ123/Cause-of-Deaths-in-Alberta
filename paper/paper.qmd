@@ -8,7 +8,7 @@ author:
 thanks: "Code and data are available at: https://github.com/HechenZ123/Cause-of-Deaths-in-Alberta.git"
 date: 'today'
 date-format: 'long'
-abstract: "We examined the distribution of the top 30 causes of death for each year between 2001 and 2022 in Alberta, Canada. The conifer model and negative binomial regression were used to analyse the long-term leading causes of death and the sudden emergence of specific causes of death. According to our findings, negative binomial regression improves our ability to predict outcomes when the data is too spread out by fitting the data more accurately. The results could not only help policymakers design more effective preventive measures to reduce mortality from these conditions, but also help researchers and policymakers make more precise decisions."
+abstract: "We examined the distribution of the top 30 causes of death for each year between 2001 and 2022 in Alberta, Canada. The poisson model and negative binomial regression were used to analyse the long-term leading causes of death and the sudden emergence of specific causes of death. According to our findings, negative binomial regression improves our ability to predict outcomes when the data is too spread out by fitting the data more accurately. The results could not only help policymakers design more effective preventive measures to reduce mortality from these conditions, but also help researchers and policymakers make more precise decisions."
 format: pdf
 toc: true
 editor: visual
@@ -318,9 +318,15 @@ Both models’ coefficients represent that as each of these causes of death beco
 
 # Discussion
 
+## Overview of the Finding 
+
+For the 2022 data, the process of utilizing different statistical models applied to the historical data to estimate model parameters is used to understand how each cause contributes to the total number of deaths. Using the estimated coefficients, the relationship between each cause of death and the total number of deaths can be extrapolated to predict future trends in causes of death.
+
+## Covid Impact
+The data show the severity and mortality of the novel coronavirus during the pandemic. The rapid spread of the virus and the lack of treatment and early prevention efforts led to a serious health disaster. The lethality of the new coronavirus is reflected not only in the number of deaths directly related to the virus, but also in the increase in unspecified causes of death due to the strain the virus has placed on health care resources. Alberta has responded to the epidemic and its impact on mortality by taking action to prevent the spread of the virus. In particular, a mass vaccination program has been implemented to reduce the number of severe cases and deaths. Preventing the recurrence of such epidemics requires lessons learned from sudden-onset events and stronger response systems. This will require greater interregional and international cooperation to improve the responsiveness of public health systems and the ability to rapidly allocate resources in emergencies. In addition, the exchange of outbreak data in an open and transparent manner is critical to stopping such outbreaks in the future. By allowing Governments and the public to make informed decisions based on the most up-to-date knowledge, such data-sharing not only accelerates scientific understanding of the characteristics of the virus and its mode of transmission, but also reduces mortality rates.
 
 
-## Environmental impact
+## Environmental Impact
 The high incidence of respiratory illnesses in Alberta may be related to the region's unique environmental factors, as Alberta is extremely well developed in the field of source energy, which is also a major source of the province's economy. The region is home to a number of similar sectors, and it's possible that working in these industries would expose employees to dangerous compounds, which might lead to an increase in airborne pollutants. A large portion of the year is spent in a chilly, dry environment in Alberta. Heating systems are often used by citizens, which may cause issues with indoor air quality. Heating systems have the potential to worsen respiratory issues by circulating dust, germs, and other small particles through the air and making it drier inside. The prevalence of smoking and urbanization-related factors like building development and automobile emissions may potentially have a detrimental effect on respiratory health. When taken into account collectively, these variables could put inhabitants of Alberta at greater risk of dying from respiratory diseases. All things considered, a complex interplay of variables contributes to Albertans' struggles with respiratory diseases. This necessitates a comprehensive public health plan that lowers emissions from vehicles and industry, enhances indoor air quality, and increases public knowledge of healthy lifestyle choices in order to lower the prevalence of respiratory illnesses and the related mortality risk.
 
 
