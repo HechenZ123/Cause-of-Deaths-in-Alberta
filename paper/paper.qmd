@@ -1,5 +1,5 @@
 ---
-title: "My title"
+title: "Analyzi"
 subtitle: "My subtitle if needed"
 author: 
   - Yanyu Wu
@@ -40,7 +40,7 @@ library(rstanarm)
 library(loo)
 ```
 
-# Data {#sec-data}
+# Data
 
 Our data is of leading causes of death (@fig-dataset-overview), from @datasetCOD.
 
@@ -84,7 +84,7 @@ alberta_cod |>
 ```
 
 
-## Data Method
+## Data Methods
 In the preliminary phase, we worked on organizing and harmonizing the naming of variables in the dataset to enhance its readability and efficiency of analysis. In addition, we summarized the data in order to quantify the incidence of various causes of death, thus making the dataset more streamlined for more in-depth analysis. To avoid missing years in the dataset from affecting the results of the analysis, we decided to delete all records containing these missing values.We then prioritized the top 8 causes of death by 2022 based on their number of deaths. Particular attention was paid to the top 5 leading causes of death, which is at a critical time when the world is facing a pandemic virus, and the data allow us to understand the impact of the new crown on mortality.Our mortality data are consistent with the characteristic of occurring independently with equal means and variances. These mortality trends are fitted by Poisson and negative binomial statistical models because of the suitability of both models for working with count data. A method for assessing the effect of predictor variables on mortality changes is provided, with exponential coefficients that visually represent the change in mortality risk that may result from each unit change in a predictor variable.
 
 ```{r}
@@ -129,34 +129,34 @@ We can also see that in the data table for 2022, COVID-19 ranks fourth, with 1,5
 
 # Model
 
-## Model setup:
+## Model Setup:
 
-In analyzing the association between the total number of deaths and significant causes of death, we used two different regression models to predict, namely the Poisson distribution and the binomial distribution. Both the Poisson and binomial distribution models are regression models used to analyze count data, primarily for finding the relationship between independent variables (predictors) and dependent variables (count outcomes). In regression models, the independent variables are independent, while the dependent variables depend on the independent variables. In our model, the independent variables are the different causes of death mentioned in the table, such as COVID-19, malignant neoplasms, organic dementia, etc. These variables are used to predict or explain the number of deaths. The dependent variable is the number of deaths in Alberta from 2001 to 2022. This variable is the response variable in the model, and its count is the result to be predicted or explained.
+In analyzing the association between the total number of deaths and significant causes of death, we used two different regression models to predict, namely the poisson distribution and the binomial distribution. Both the Poisson and binomial distribution models are regression models used to analyze count data, primarily for finding the relationship between independent variables (predictors) and dependent variables (count outcomes). In regression models, independent variables (also known as predictors or explanatory variables) influence the outcomes, while dependent variables (also known as response variables) are influenced by these independent variables. In our model, the independent variables are the different causes of death mentioned in the table, such as COVID-19, malignant neoplasms, organic dementia, etc. These variables are used to predict or explain the number of deaths. The dependent variable is the number of deaths in Alberta from 2001 to 2022. This variable is the response variable in the model, and its count is the result to be predicted or explained.
 
-Using the Poisson distribution has different advantages and disadvantages in this study. The Poisson model is simple in form, with fewer parameters, making it easy to understand and explain, and because of its simplicity, this model has a faster computation speed and is easy to implement. The Poisson distribution has a solid theoretical foundation for modeling the number of times an event occurs. It assumes that the average frequency of events occurring over a certain time or space is constant, and the occurrence of individual events is independent. At the same time, the Poisson distribution is a regression model specifically used for analyzing count data (where the response variable is non-negative). In our study, our response variable is the number of deaths, which is definitely a positive number, making the Poisson distribution suitable for our research. However, it also has some shortcomings, such as the problem of overdispersion; if the actual data show that the variance is greater than the mean, the Poisson model may not be applicable, and the model's predictive effect will worsen.
+Using the Poisson distribution has different advantages and disadvantages in this study. The Poisson model is simple in form, with fewer parameters, making it easy to understand and explain, and because of its simplicity, this model has a faster computation speed and is easy to implement. The Poisson distribution has a solid theoretical foundation for modeling the number of times an event occurs. It assumes that the average frequency of events occurring over a certain time or space is constant, and the occurrence of individual events is independent. At the same time, the Poisson distribution is a regression model specifically used for analyzing count data (where the response variable is non-negative). In our study, we use the number of deaths as the response variable, which is inherently a positive integer, thus justifying the initial suitability of the Poisson distribution for our analysis. However, the Poisson model comes with limitations, notably the issue of overdispersion—where the observed variance exceeds the mean. In such cases, the Poisson model may become inappropriate, leading to a deterioration in the model’s predictive performance.
 
 Regarding the negative binomial distribution, its advantage is that it includes an additional parameter to model overdispersion, making it more suitable for data where the variance is greater than the mean. Compared to the Poisson model, the negative binomial model offers more flexibility to fit various data, especially those that exhibit significant overdispersion or clustering. The negative binomial model includes an extra parameter to account for overdispersion, allowing the variance to exceed the mean. In our study, this model also attempts to link death counts with various causes but is more flexible in handling data variability. However, compared to the Poisson distribution, the negative binomial model is more complex, involving more parameters, which may lead to difficulties in model explanation and communication. The negative binomial model typically requires more computational resources, so it may not be as efficient as the Poisson model on large datasets.
 
-In our data situation, the negative binomial model seems more appropriate than the Poisson model, possibly due to overdispersion in the data. Therefore, in analyzing causes of death (such as COVID-19, malignant neoplasms, organic dementia, etc.), choosing the negative binomial model may provide more accurate estimates.
+In our data situation, the negative binomial model seems more appropriate than the Poisson model, due to overdispersion in the data. Therefore, in analyzing causes of death (such as COVID-19, malignant neoplasms, organic dementia, etc.), choosing the negative binomial model may provide more accurate estimates.
  
 
-Poisson model:
+Our specified model for Poisson is:
 \begin{align} 
 y_i|\lambda_i &\sim \mbox{Poisson}(\lambda_i) \\
 log(\lambda_i) & = \beta_0 + \beta_1 \cdot x_i\\
 \beta_0 &\sim \mbox{Normal}(0, 2.5) \\
 \beta_1 &\sim \mbox{Normal}(0, 2.5) \\
 \end{align}
+where $\lambda$ represents the expected rate of occurrence of deaths, $\beta_0$ is the intercept, and $\beta_1$ is the coefficient for the variable $x_1$.
 
-Negative binomial model:
+Our specified model for Negative binomial model is:
 \begin{align} 
 y_i|\lambda_i, \theta &\sim \mbox{NegativeBinomial}(\mu_i, \theta) \\
 log(\mu_i) & = \beta_0 + \beta_1 \cdot x_i\\
 \beta_0 &\sim \mbox{Normal}(0, 2.5) \\
 \beta_1 &\sim \mbox{Normal}(0, 2.5) \\
 \end{align}
-
-From this formula, we can consider $y_i$ to be the total number of deaths, with the i-th observation representing the cause of death. $\beta_0$ represents the intercept, which is the expected log count of the response variable when all predictor variables are held at zero. The intercepts of the two models are similar. Each cause of death has a corresponding coefficient $\beta_i$, indicating the change in the expected log count of deaths for each unit increase in the predictor variable (i.e., the presence of the cause of death). A negative coefficient suggests that the presence of that cause is associated with a decrease in the death count relative to the baseline level. The intercept $\beta_0$ and the slope $\beta_i$ both follow a prior distribution that is normally distributed with a mean of 0 and a standard deviation of 2.5.
+From this formula, we can consider $\mu_i$ to be the expected rate of occurrence of deaths. $\beta_0$ represents the intercept, which is the expected log count of the response variable when all predictor variables are held at zero, and $\beta_1$ is the coefficient for the variable $x_1$. The intercepts of the two models are similar. Each cause of death has a corresponding coefficient $\beta_i$, indicating the change in the expected log count of deaths for each unit increase in the predictor variable (i.e., the presence of the cause of death). A negative coefficient suggests that the presence of that cause is associated with a decrease in the death count relative to the baseline level. The intercept $\beta_0$ and the slope $\beta_i$ both follow a prior distribution that is normally distributed with a mean of 0 and a standard deviation of 2.5.
 
 
 ```{r}
@@ -171,7 +171,7 @@ cause_of_death_alberta_neg_binomial <-
   readRDS(file = here::here("models/cause_of_death_alberta_neg_binomial.rds"))
 ```
 
-## Model justification
+## Model Justification
 
 Based on the models discussed above, it is challenging to determine whether each cause of death has a positive or negative correlation with the total number of deaths, as the leading cause of death changes each year. The specific impact of these changes must be determined by the coefficient of each leading cause of death to decide whether the correlation is positive or negative. According to @fig-planes, from 2001 to 2022, organic dementia shows an upward trend, indicating that organic dementia is positively correlated with the total number of deaths. In the upcoming model results section, we will elaborate in detail on the association between each cause of death and the total number of deaths.
 
@@ -211,12 +211,12 @@ pp_check(cause_of_death_alberta_neg_binomial) +
   theme(legend.position = "bottom")
 ```
 
-We created @fig-ppcheckandposteriorvsprior that includes both the Poisson and negative binomial models. For the Poisson model, the actual observed values y are represented in black. The predicted values *$y_{Rep}$* are shown in light blue, which are replicated samples generated based on the posterior distribution of model parameters.
+We created @fig-ppcheckandposteriorvsprior that includes both the poisson and negative binomial models. For the poisson model, the actual observed values y are represented in black. The predicted values *$y_{Rep}$* are shown in light blue, which are replicated samples generated based on the posterior distribution of model parameters.
 
-It can be seen that there is a significant overlap between many of the predictive distributions and the actual observed values, but at higher values, the range of the predictive distribution becomes very wide, indicating that the model may not fit well for high-count values.
+It can be seen that there is a significant overlap between many of the predictive distributions and the actual observed values, but at higher values, the range of the predictive distribution becomes significantly wide, indicating that the model may not fit well for high-count values.
 
-For the negative binomial models, the actual observed values `y` are also represented in black, and the predicted values yrep are likewise shown in light blue, generated based on the posterior distribution of the model parameters. Compared to the Poisson model, the predictive distributions generated by the negative binomial model appear to be more concentrated, meaning they are more closely clustered around the actual observed values at higher counts, indicating that the negative binomial model may be more suitable for these data.
-From the figure, it can be observed that the predictive distributions of the negative binomial model match the actual observed values better than those of the Poisson model. In the Poisson model's figure, the predicted values align well with the actual values near the peak in the middle but are wider in the tail distribution, which may mean that the Poisson model struggles with extreme values. In contrast, in the figure for the negative binomial model, the predicted values seem to follow the actual observed values more closely across the entire range, typically indicating it can better handle the overdispersion of the data.
+For the negative binomial model, similar to the poisson model, the actual observed values `y` are also represented in black, and the predicted values $y_{rep}$ are likewise shown in light blue, generated based on the posterior distribution of the model parameters. Compared to the poisson model, the predictive distributions generated by the negative binomial model appear to be more concentrated, meaning that they are more closely clustered around the actual observed values at higher counts, indicating that the negative binomial model may be more suitable for these data.
+From the figure, it can be observed that the predictive distributions of the negative binomial model match the actual observed values better than those of the poisson model. In the poisson model's figure, the predicted values align well with the actual values near the peak in the middle but are wider in the tail distribution, which may mean that the Poisson model struggles with extreme values. In contrast, in the figure for the negative binomial model, the predicted values seem to follow the actual observed values more closely across the entire range, typically indicating that it can better handle the overdispersion of the data.
 
 ```{r}
 #| echo: false
@@ -248,15 +248,15 @@ names(selected_comparison_df) <- c("Difference in Expected Log Predictive Densit
 kable(selected_comparison_df, caption = "LOO-CV Model Comparison: ELPD Difference and SE Difference", align = 'c')
 ```
 
-To demonstrate that the negative binomial model is a better fit, we compared the Expected Log Predictive Density (ELPD) difference and the Standard Error (SE) difference between these two models in @tbl-LOOIC. The ELPD difference column compares the difference in expected log pointwise predictive density between the two models—the negative binomial model and the Poisson model. ELPD is an indicator of model predictive performance, with higher ELPD values typically indicating better model predictive performance. For the negative binomial model (listed as cause_of_death_alberta_neg_binomial), the ELPD difference is 0.0. For the Poisson model (listed as cause_of_death_alberta_poisson), the ELPD difference is -6160.6, meaning that, relative to the negative binomial model, the Poisson model's predictive performance is worse.
+To demonstrate that the negative binomial model is a better fit, we compared the Expected Log Predictive Density (ELPD) difference and the Standard Error (SE) difference between these two models. As in @tbl-LOOIC, the ELPD difference column compares the difference in expected log predictive density between the two models—the negative binomial model and the Poisson model. ELPD is an indicator of model predictive performance, with higher ELPD values typically indicating better model predictive performance. For the negative binomial model (listed as cause_of_death_alberta_neg_binomial), the ELPD difference is 0.0. For the Poisson model (listed as cause_of_death_alberta_poisson), the ELPD difference is -6160.6, meaning that, relative to the negative binomial model, the Poisson model's predictive performance is worse.
 
 The SE difference represents the uncertainty in the estimation of the ELPD difference. A smaller SE difference indicates that the estimation of the ELPD difference is more precise; a larger SE difference indicates that the estimation of the ELPD difference is less stable and has more uncertainty. In other words, it tells us the reliability of the difference in predictive performance between the models. The SE difference is 1412.1, which is a relatively large value, indicating considerable uncertainty in the estimation of the predictive performance difference between the negative binomial model and the Poisson model. Nonetheless, the significant difference in ELPD (-6160.6) compared to its SE suggests that this difference is statistically significant. In other words, even considering the uncertainty in the ELPD difference, the negative binomial model's predictive performance is significantly better than that of the Poisson model, supporting our previous statements.
 
 
 # Results
 
-## data result
-@fig-planes shows the annual number of deaths from the top five causes of death in Alberta in 2022 and traces the trend from 2000 to 2022. In this case, the number of deaths from all other forms of chronic ischemic heart disease shows a relatively stable trend line with a slight increase over time. This could mean that the number of deaths from chronic ischemic heart disease remains high, and this slight increasing trend could be related to population growth and aging, as ischemic heart disease is more commonly seen in older adults. Beginning in 2020, a trend line in COVID-19 deaths emerges abruptly, coinciding with a pandemic outbreak. This trend line, although short-lived, shows a sharp rise in deaths due to the virus, which is consistent with what happened during the pandemic. Factors such as vaccination and treatment measures have led to a significant reduction in this trend over time. For deaths from malignant tumors of the trachea, bronchus, and lungs, the trend line is relatively flat, suggesting that the number of deaths from these cancers has remained consistent over the years without significant increases or decreases. This stable trend may indicate that effective treatments have been able to counterbalance the effects of the increase in cases or that the promotion of regular medical check-ups has helped to reduce mortality from these diseases. The trend line for dementia deaths shows a gradual increase in deaths over time, which may be related to the growth of the older population. The increase in dementia-related deaths may be due to a number of factors, including increased life expectancy, which has led to a higher proportion of older people in the population, and the lack of effective treatments to prevent the progression of the disease. For the "other unspecified and unknown causes" category, there is a sharp increase from 2018 to 2019 and a rapid decline from 2021 to 2022. This increase coincided with the period of the COVID-19 pandemic, which we hypothesize may have been due to the fact that the new coronavirus and its variants were not immediately recognized or adequately documented at that time, resulting in many deaths that could not be accurately attributed to known causes. In addition, the healthcare system may have been under heavy pressure during the New Crown epidemic and lacked the resources to conduct thorough investigations, which in turn led to a large number of deaths being categorized as unknown causes.
+## Data Results
+@fig-planes shows the annual number of deaths from the top five causes of death in Alberta in 2022 and traces the trend from 2000 to 2022. In this case, the number of deaths from all other forms of chronic ischemic heart disease shows a relatively stable trend line with a slight increase over time. This could mean that the number of deaths from chronic ischemic heart disease remains high, and this slight increasing trend could be related to population growth and aging, as ischemic heart disease is more commonly seen in elders. Beginning in 2020, a trend line in COVID-19 deaths emerges abruptly, coinciding with a pandemic outbreak. This trend line, although short-lived, shows a sharp rise in deaths due to the virus, which is consistent with what happened during the pandemic. Factors such as vaccination and treatment measures have led to a significant reduction in this trend over time. For deaths from malignant tumors of the trachea, bronchus, and lungs, the trend line is relatively flat, suggesting that the number of deaths from these cancers has remained consistent over the years without significant increases or decreases. This stable trend may indicate that effective treatments have been able to counterbalance the effects of the increase in cases or that the promotion of regular medical check-ups has helped to reduce mortality from these diseases. The trend line for dementia deaths shows a gradual increase in deaths over time, which may be related to the growth of the older population. The increase in dementia-related deaths may be due to a number of factors, including increased life expectancy, which has led to a higher proportion of older people in the population, and the lack of effective treatments to prevent the progression of the disease. For the "other unspecified and unknown causes" category, there is a sharp increase from 2018 to 2019 and a rapid decline from 2021 to 2022. This increase coincided with the period of the COVID-19 pandemic, which we hypothesize may have been due to the fact that the new coronavirus and its variants were not immediately recognized or adequately documented at that time, resulting in many deaths that could not be accurately attributed to known causes. In addition, the healthcare system may have been under heavy pressure during the New Crown epidemic and lacked the resources to conduct thorough investigations, which in turn led to a large number of deaths being categorized as unknown causes.
 
 ```{r}
 #| label: fig-planes
@@ -275,8 +275,8 @@ alberta_cod |>
 ```
 
 
-## model result
-@tbl-modelresults shows the four most significant causes of death in Alberta from 2001-2022: organic dementia, COVID-19, malignant neoplasms of the trachea, bronchus, and lung, and other ill-defined and unknown causes of mortality. The coefficients indicate the relationship between the total number of deaths and the causes of death listed in the table.the model estimates the coefficients of each variable, quantifying the expected change of one unit change in the predictor variable (specific cause of death) against the response variable (in this case, the number of deaths), while holding all other variables constant. For predictive modeling, the fit of the model to historical data is crucial because it tells us how well the model explains changes in the data. The better the fit, the more confident we can use the model to predict the future.
+## Model Results
+@tbl-modelresults shows the four most significant causes of death in Alberta from 2001-2022: organic dementia, COVID-19, malignant neoplasms of the trachea, bronchus, and lung, and other ill-defined and unknown causes of mortality. The coefficients indicate the relationship between the expected total number of deaths and the causes of death listed in the table. The model estimates the coefficients of each variable, quantifying the expected change of one unit change in the predictor variable (specific cause of death) against the response variable (in this case, the number of deaths), while holding all other variables constant. For predictive modeling, the fit of the model to historical data is crucial because it tells us how well the model explains changes in the data. The better the fit, the more confident we can use the model to predict the future.
 
 
 ```{r}
@@ -293,7 +293,7 @@ modelsummary(
 )
 
 ```
-### Poisson distribution model
+### Poisson Distribution Model
 In the Poisson model, the expected logarithmic function $log(\mu_i)$ is defined as: 
 
 $$
@@ -303,7 +303,7 @@ $$
  
 The intercept represents the expected log count of deaths when all causes are absent. In the Poisson model, the baseline number of deaths equals 7.484. For COVID-19, the coefficient is -0.152, indicating that the presence of this cause is associated with a slight decrease in the total death count. Moreover, for malignant neoplasms with a coefficient of -0.223, suggesting a slightly larger decrease in total death counts when malignant neoplasms are a cause. In terms of organic dementia, a coefficient of -0.400 suggests a more substantial decrease in total death counts with organic dementia as a cause. For other ill-defined and unknown causes, the coefficient is -0.007, indicating almost no change in the total death count when these are listed as the cause.
 
-### Negative binomial distribution model
+### Negative Binomial Distribution Model
 
 In the negative binomial model, the expected logarithmic count is defined as: 
 $$
@@ -318,19 +318,21 @@ Both models’ coefficients represent that as each of these causes of death beco
 
 # Discussion
 
-## Addressing Public Health Challenges in Alberta: Strategies for Health Policy and Social Regulation
+
+
+## Environmental impact
+The high incidence of respiratory illnesses in Alberta may be related to the region's unique environmental factors, as Alberta is extremely well developed in the field of source energy, which is also a major source of the province's economy. The region is home to a number of similar sectors, and it's possible that working in these industries would expose employees to dangerous compounds, which might lead to an increase in airborne pollutants. A large portion of the year is spent in a chilly, dry environment in Alberta. Heating systems are often used by citizens, which may cause issues with indoor air quality. Heating systems have the potential to worsen respiratory issues by circulating dust, germs, and other small particles through the air and making it drier inside. The prevalence of smoking and urbanization-related factors like building development and automobile emissions may potentially have a detrimental effect on respiratory health. When taken into account collectively, these variables could put inhabitants of Alberta at greater risk of dying from respiratory diseases. All things considered, a complex interplay of variables contributes to Albertans' struggles with respiratory diseases. This necessitates a comprehensive public health plan that lowers emissions from vehicles and industry, enhances indoor air quality, and increases public knowledge of healthy lifestyle choices in order to lower the prevalence of respiratory illnesses and the related mortality risk.
+
+
+## Weaknesses, bias, and ethics
+Future counts may be impacted by abrupt changes in the population or public health crises. For instance, the sudden emergence of the coronavirus in a specific year led to numerous fatalities. Such unpredictable events can profoundly affect the accuracy of our established models, resulting in erroneous forecasts. As a result, models should be updated often with fresh data even if they might shed light on future patterns based on historical data.
+Furthermore, the data's reach is restricted to Alberta, and because different areas and nations have differing degrees of economic strength and health promotion, the data is not indicative of the broader population. The influence of regional variations on forecasts should be examined using multilevel modeling or by collecting a larger geographic sample. Sociodemographic factors also have a substantial impact on the cause of death statistics. The age distribution may be more clearly seen since children and the elderly are more likely than other age groups to suffer from certain diseases. It's possible that women are more prone to have certain malignant tumors than males are to suffer from heart disease. [@regitz2023gender] Because certain diseases are more frequent in one sex than the other, the sex ratio may thus also have an impact on the cause of mortality. Furthermore, racial disparities could influence the likelihood of contracting a disease. For instance, genetic variables may be linked to a greater frequency of a certain chronic illness in a given ethnic group. Finally, there may be privacy issues involved in collecting these data, and researchers should obtain informed consent from participants.
+
+## Next steps
+Addressing Public Health Challenges in Alberta: Strategies for Health Policy and Social Regulation
 
 Based on the top five causes of death in Alberta, it is imperative that we consider initiatives to improve health policy and social regulation to address health challenges, prioritizing public health issues. Looking at the data, given the significant impact of Covid-19 on mortality rates, it is crucial to continue efforts to implement public health interventions. This includes increasing mass vaccination activities, continuing to promote mask-wearing and social distancing measures, and enhancing testing and contact tracing capabilities. Furthermore, it is essential to ensure that the healthcare system has sufficient capacity to handle an increase in cases. It is worth noting that in the coming years, due to the passage of several years since the virus initially emerged, Covid-19 may not continue to be such a significant cause of death, as the virus gradually becomes less virulent or severe [@talic2021effectiveness].
 Implementing policies for cancer prevention and control can help reduce mortality from malignant neoplasms of the trachea, bronchus, and lung. This may include implementing tobacco control measures, such as increasing tobacco product taxes, comprehensive smoking cessation programs, and restricting tobacco advertising and promotion. Additionally, promoting healthy lifestyles, early cancer screening programs, and providing high-quality cancer treatment services are also crucial [@eastman2023nci].
-
-## Second discussion point
-
-## Third discussion point
-
-## Weaknesses and next steps
-
-Weaknesses and next steps should also be included.
-
 \newpage
 
 
