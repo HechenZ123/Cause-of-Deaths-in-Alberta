@@ -248,12 +248,16 @@ names(selected_comparison_df) <- c("Difference in Expected Log Predictive Densit
 kable(selected_comparison_df, caption = "LOO-CV Model Comparison: ELPD Difference and SE Difference", align = 'c')
 ```
 
-To demonstrate that the negative binomial model is a better fit, we compared the Expected Log Predictive Density (ELPD) difference and the Standard Error (SE) difference between these two models. The ELPD difference column compares the difference in expected log pointwise predictive density between the two models—the negative binomial model and the Poisson model. ELPD is an indicator of model predictive performance, with higher ELPD values typically indicating better model predictive performance. For the negative binomial model (listed as cause_of_death_alberta_neg_binomial), the ELPD difference is 0.0. For the Poisson model (listed as cause_of_death_alberta_poisson), the ELPD difference is -6160.6, meaning that, relative to the negative binomial model, the Poisson model's predictive performance is worse.
+To demonstrate that the negative binomial model is a better fit, we compared the Expected Log Predictive Density (ELPD) difference and the Standard Error (SE) difference between these two models in @tbl-LOOIC. The ELPD difference column compares the difference in expected log pointwise predictive density between the two models—the negative binomial model and the Poisson model. ELPD is an indicator of model predictive performance, with higher ELPD values typically indicating better model predictive performance. For the negative binomial model (listed as cause_of_death_alberta_neg_binomial), the ELPD difference is 0.0. For the Poisson model (listed as cause_of_death_alberta_poisson), the ELPD difference is -6160.6, meaning that, relative to the negative binomial model, the Poisson model's predictive performance is worse.
 
 The SE difference represents the uncertainty in the estimation of the ELPD difference. A smaller SE difference indicates that the estimation of the ELPD difference is more precise; a larger SE difference indicates that the estimation of the ELPD difference is less stable and has more uncertainty. In other words, it tells us the reliability of the difference in predictive performance between the models. The SE difference is 1412.1, which is a relatively large value, indicating considerable uncertainty in the estimation of the predictive performance difference between the negative binomial model and the Poisson model. Nonetheless, the significant difference in ELPD (-6160.6) compared to its SE suggests that this difference is statistically significant. In other words, even considering the uncertainty in the ELPD difference, the negative binomial model's predictive performance is significantly better than that of the Poisson model, supporting our previous statements.
 
 
 # Results
+
+## data result
+@fig-planes shows the annual number of deaths from the top five causes of death in Alberta in 2022 and traces the trend from 2000 to 2022. In this case, the number of deaths from all other forms of chronic ischemic heart disease shows a relatively stable trend line with a slight increase over time. This could mean that the number of deaths from chronic ischemic heart disease remains high, and this slight increasing trend could be related to population growth and aging, as ischemic heart disease is more commonly seen in older adults. Beginning in 2020, a trend line in COVID-19 deaths emerges abruptly, coinciding with a pandemic outbreak. This trend line, although short-lived, shows a sharp rise in deaths due to the virus, which is consistent with what happened during the pandemic. Factors such as vaccination and treatment measures have led to a significant reduction in this trend over time. For deaths from malignant tumors of the trachea, bronchus, and lungs, the trend line is relatively flat, suggesting that the number of deaths from these cancers has remained consistent over the years without significant increases or decreases. This stable trend may indicate that effective treatments have been able to counterbalance the effects of the increase in cases or that the promotion of regular medical check-ups has helped to reduce mortality from these diseases. The trend line for dementia deaths shows a gradual increase in deaths over time, which may be related to the growth of the older population. The increase in dementia-related deaths may be due to a number of factors, including increased life expectancy, which has led to a higher proportion of older people in the population, and the lack of effective treatments to prevent the progression of the disease. For the "other unspecified and unknown causes" category, there is a sharp increase from 2018 to 2019 and a rapid decline from 2021 to 2022. This increase coincided with the period of the COVID-19 pandemic, which we hypothesize may have been due to the fact that the new coronavirus and its variants were not immediately recognized or adequately documented at that time, resulting in many deaths that could not be accurately attributed to known causes. In addition, the healthcare system may have been under heavy pressure during the New Crown epidemic and lacked the resources to conduct thorough investigations, which in turn led to a large number of deaths being categorized as unknown causes.
+
 ```{r}
 #| label: fig-planes
 #| fig-cap:  Annual number of deaths for the top-five causes in 2022, since 2001, for Alberta, Canada
@@ -270,27 +274,10 @@ alberta_cod |>
   theme(legend.position = "none")
 ```
 
-```{r}
-#| label: fig-summary_table
-#| echo: false
-#| tbl-cap: Summary by cause of the number of yearly deaths in Alberta, Canada
-#| warning: false
-#| message: false
-# Calculate summary statistics for total_deaths
-summary_stats <- data.frame(
-  Min = min(alberta_cod$total_deaths, na.rm = TRUE),
-  Mean = mean(alberta_cod$total_deaths, na.rm = TRUE),
-  Max = max(alberta_cod$total_deaths, na.rm = TRUE),
-  SD = sd(alberta_cod$total_deaths, na.rm = TRUE),
-  Var = var(alberta_cod$total_deaths, na.rm = TRUE),
-  N = sum(!is.na(alberta_cod$total_deaths))
-)
 
-# Use kable from knitr to create a table
-kable(summary_stats)
-```
+## model result
+@tbl-modelresults shows the four most significant causes of death in Alberta from 2001-2022: organic dementia, COVID-19, malignant neoplasms of the trachea, bronchus, and lung, and other ill-defined and unknown causes of mortality. The coefficients indicate the relationship between the total number of deaths and the causes of death listed in the table.the model estimates the coefficients of each variable, quantifying the expected change of one unit change in the predictor variable (specific cause of death) against the response variable (in this case, the number of deaths), while holding all other variables constant. For predictive modeling, the fit of the model to historical data is crucial because it tells us how well the model explains changes in the data. The better the fit, the more confident we can use the model to predict the future.
 
-Our results are summarized in @tbl-modelresults.
 
 ```{r}
 #| echo: false
@@ -306,6 +293,27 @@ modelsummary(
 )
 
 ```
+### Poisson distribution model
+In the Poisson model, the expected logarithmic function $log(\mu_i)$ is defined as: 
+
+$$
+log(\lambda) = 7.484 - 0.152 \cdot COVID - 0.223 \cdot MaligantNeoplasms 
+- 0.400 \cdot OrganicDementia - 0.007 \cdot UnknownCauses
+$$
+ 
+The intercept represents the expected log count of deaths when all causes are absent. In the Poisson model, the baseline number of deaths equals 7.484. For COVID-19, the coefficient is -0.152, indicating that the presence of this cause is associated with a slight decrease in the total death count. Moreover, for malignant neoplasms with a coefficient of -0.223, suggesting a slightly larger decrease in total death counts when malignant neoplasms are a cause. In terms of organic dementia, a coefficient of -0.400 suggests a more substantial decrease in total death counts with organic dementia as a cause. For other ill-defined and unknown causes, the coefficient is -0.007, indicating almost no change in the total death count when these are listed as the cause.
+
+### Negative binomial distribution model
+
+In the negative binomial model, the expected logarithmic count is defined as: 
+$$
+log(\mu_i) = 7.482 - 0.129 \cdot COVID - 0.220 \cdot MaligantNeoplasms 
+- 0.396 \cdot OrganicDementia + 0.017 \cdot UnknownCauses
+$$
+ 
+For a negative binomial model, the baseline number of deaths when all causes are absent equals 7.482. For the cause of Covid, each additional count is correlated with a 0.129 decrease in the log count of deaths. This also suggests that areas with one more unit of covid-19 reported deaths are expected to see a decrease in the total number of deaths (logarithmic scale). In addition, for malignant neoplasms, the coefficient indicated each additional count of deaths due to this cause is associated with a 0.22 decrease in the log count of total deaths. Similarly, the coefficient for cause of organic dementia is equal to -0.396, this indicates that for each additional count of deaths due to this cause is associated with a 0.396 decrease in the log count of total deaths. Lastly, the coefficient for other ill-defined and unknown causes is small and positive which suggest that an increase in the number of deaths due to these causes are slightly associated with an increase in the log count of total deaths.
+
+Both models’ coefficients represent that as each of these causes of death become a more prevalent reason for death, the total number of deaths decreases in relation to the baseline level set by the intercept, except for "Other ill-defined and unknown causes," which shows no significant effect.
 
 
 # Discussion
